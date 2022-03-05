@@ -343,3 +343,6 @@
             var: dotnet452_exe
             verbosity: 1
 
+       - name: "Install Git-LFS"
+         win_shell: choco install git-lfs.install --version=2.13.3
+         debug: Git-LFS
