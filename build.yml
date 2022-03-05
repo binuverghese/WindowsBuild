@@ -58,6 +58,7 @@
         allow_empty_checksums: "yes"
       with_items:
         - git
+        - git-lfs
         - cmake
         - curl
         - nasm
