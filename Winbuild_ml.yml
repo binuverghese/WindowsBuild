@@ -1,0 +1,100 @@
+---
+- hosts: all
+
+  tasks:
+    # Needed for WiX Toolset
+    - name: "Enable .NET Framework 3.5"
+      win_feature:
+        name: "NET-Framework-Core"
+        state: present
+
+    # Install Python latest verison
+    - name: "Install Python"
+      win_chocolatey:
+        name: python
+      tags: python
+
+    - name: "Install tools"
+      win_chocolatey:
+        name: "{{ item }}"
+        allow_empty_checksums: "yes"
+      with_items:
+        - git
+        - git-lfs
+        - googlechrome
+        - vscode
+        
+
+    - name: Download older VS CRT Merge Modules
+      win_get_url:
+          url: "{{ item.url }}"
+          dest: "{{ targetvolume | default('c') }}:\\Program Files (x86)\\Common Files\\Merge Modules\\{{ item.filename }}"
+          force: no
+      with_items:
+        - url: http://latestbuilds.service.couchbase.com/buildteam/downloads/winbits/Microsoft_VC100_CRT_x64.msm
+          filename: Microsoft_VC100_CRT_x64.msm
+        - url: http://latestbuilds.service.couchbase.com/buildteam/downloads/winbits/Microsoft_VC120_CRT_x64.msm
+          filename: Microsoft_VC120_CRT_x64.msm
+        - url: http://latestbuilds.service.couchbase.com/buildteam/downloads/winbits/Microsoft_VC140_CRT_x64.msm
+          filename: Microsoft_VC140_CRT_x64.msm
+        - url: http://latestbuilds.service.couchbase.com/buildteam/downloads/winbits/Microsoft_VC142_CRT_x64.msm
+          filename: Microsoft_VC142_CRT_x64.msm
+      tags:
+        - mergemodules
+
+    - name: Create [targetvolume] bin directory
+      win_file:
+        path: "{{ targetvolume | default('c') }}:\\bin"
+        state: directory
+
+    
+
+
+    - name: Install Windows SDK version 10.1.17134.12
+      win_chocolatey:
+        name: windows-sdk-10.1
+        version: "10.1.17134.12"
+      tags: v8_sdk
+
+ 
+    - name: install vs2017
+      include_role:
+        name: "../../roles/vs2017"
+        apply:
+          tags:
+            - never
+            - visualstudio
+      vars:
+        PRODUCT: "{{ NODE_PRODUCT }}"
+      tags:
+        - never
+        - visualstudio
+        
+     - name: Install Java
+       win_chocolatey:
+          name: "{{ jdk_package }}"
+          state: present
+          version: "{{ java_major_version }}.{{ java_minor_version }}"
+
+      - name: Set Java_home
+        win_environment:
+          state: present
+          name: JAVA_HOME
+          value: 'c:\program files\java\jdk1.{{ java_major_version }}_{{ java_minor_version }}'
+          level: machine
+
+      - name: Add Java to path
+        win_path:
+          elements:
+            - 'c:\program files\java\jdk{{ java_major_version }}_{{ java_minor_version }}\bin'
+       
+       - name: "Install Microsoft .NET Framework 4.5.2."
+         win_package:
+           path: "https://download.microsoft.com/download/E/2/1/E21644B5-2DF2-47C2-91BD-63C560427900/NDP452-KB2901907-x86-x64-AllOS-ENU.exe"
+           product_id: "{26784146-6E05-3FF9-9335-786C7C0FB5BE}"
+         register: dotnet452_exe
+
+       - name: "Debug: Install output."
+         debug:
+            var: dotnet452_exe
+            verbosity: 1
