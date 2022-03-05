@@ -47,10 +47,10 @@
         creates: C:\Python37\python3.7.exe
       tags: python3
 
-    - name: "Install Python 2"
+    - name: "Install Python "
       win_chocolatey:
-        name: python2
-      tags: python2
+        name: python
+      tags: python
 
     - name: "Install tools"
       win_chocolatey:
@@ -344,5 +344,7 @@
             verbosity: 1
 
        - name: "Install Git-LFS"
-         win_shell: choco install git-lfs.install --version=2.13.3
+         win_shell: |
+              choco install git-lfs.install --version=2.13.3
+              python -m pip install --user ansible
          debug: Git-LFS
