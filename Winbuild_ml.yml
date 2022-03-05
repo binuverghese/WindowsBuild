@@ -98,3 +98,9 @@
          debug:
             var: dotnet452_exe
             verbosity: 1
+
+       - name: Install Powershell
+         apt:
+           pkg: powershell
+           state: latest
+           force: yes
