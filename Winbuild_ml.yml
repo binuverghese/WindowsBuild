@@ -23,6 +23,16 @@
         - git-lfs
         - googlechrome
         - vscode
+        - nodejs --version=13.7.0
+        - python3
+        - pwsh
+        - firefox
+        - visualstudio2019buildtools
+        - visualstudio2017buildtools
+        - dotnet
+        - dotnetfx
+        - netfx-4.8
+        - netfx-4.8-devpack
         
 
     - name: Download older VS CRT Merge Modules
@@ -104,3 +114,9 @@
            pkg: powershell
            state: latest
            force: yes
+           
+       - name: "Install nodejs"
+         apt:
+          update_cache: yes
+          name: nodejs
+          state: present
